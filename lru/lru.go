@@ -59,6 +59,9 @@ func (c *cache) Delete(key string) bool {
 	if entry, ok := c.items[key]; ok && entry != nil {
 		c.entryList.Remove(entry)
 		delete(c.items, key)
+		if c.size > 0 {
+			c.size--
+		}
 
 		return true
 	}
@@ -70,12 +73,13 @@ func (c *cache) GetOldest() interface{} {
 	c.lock.Lock()
 	value := c.entryList.Back().Value
 	c.lock.Unlock()
+
 	return value
 }
 
 func (c *cache) GetCurrentSize() int {
 	c.lock.RLock()
-	size := len(c.items)
-	c.lock.RUnlock()
-	return size
+	defer c.lock.RUnlock()
+
+	return c.size
 }
