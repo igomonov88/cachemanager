@@ -12,8 +12,8 @@ func TestLFU(t *testing.T) {
 	cache.Add("key5", 13)
 	cache.Add("key6", 15)
 
-	actValue := cache.Get("key")
-	t.Log(actValue)
+	//actValue := cache.Get("key")
+	//t.Log(actValue)
 
 	for i, v := range cache.frequencyItems {
 		t.Log(i)

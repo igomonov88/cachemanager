@@ -44,39 +44,8 @@ func (c *cache) Get(key string) (value interface{}) {
 	return c.get(key)
 }
 
+
 func (c *cache) add(key string, value interface{}) {
-	if c.size >= c.capacity {
-		c.evict()
-	}
-
-	if item, ok := c.items[key]; ok {
-		entry := item.Value.(*entry)
-		oldFreq := entry.frequency
-
-		entry.value = value
-		entry.frequency++
-
-		if c.frequencyItems[entry.frequency] == nil {
-			c.frequencyItems[entry.frequency] = list.New()
-		}
-		c.frequencyItems[entry.frequency].PushFront(item)
-
-		li := c.frequencyItems[oldFreq]
-		li.Remove(item)
-		c.size++
-		return
-	}
-
-	if c.frequencyItems[c.startFrequency] == nil {
-		c.frequencyItems[c.startFrequency] = list.New()
-	}
-
-	elm := c.frequencyItems[1].PushFront(&entry{key: key, value: value, frequency: 1})
-	c.items[key] = elm
-	c.size++
-}
-
-func (c *cache) addd(key string, value interface{}) {
 	if c.size > c.capacity {
 		c.evict()
 	}
@@ -101,6 +70,10 @@ func (c *cache) addd(key string, value interface{}) {
 	if c.frequencyItems[c.startFrequency] == nil {
 		c.frequencyItems[c.startFrequency] = list.New()
 	}
+
+	elm := c.frequencyItems[1].PushFront(&entry{key: key, value: value, frequency: 1})
+	c.items[key] = elm
+	c.size++
 
 }
 
