@@ -44,6 +44,18 @@ func (c *cache) Get(key string) (value interface{}) {
 	return c.get(key)
 }
 
+func (c *cache) Delete(key string) {
+	c.lock.Lock()
+	c.deleteItem(key)
+	c.lock.Unlock()
+}
+
+func (c *cache) GetCurrentSize() uint {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	return c.currentSize()
+}
 
 func (c *cache) add(key string, value interface{}) {
 	if c.size > c.capacity {
@@ -120,4 +132,21 @@ func (c *cache) delete(li *list.List) {
 		delete(c.items, ent.key)
 		c.size--
 	}
+}
+
+func (c *cache) deleteItem(key string) {
+	if item, ok := c.items[key]; ok {
+		ent := item.Value.(*entry)
+
+		li := c.frequencyItems[ent.frequency]
+		if li != nil {
+			li.Remove(item)
+		}
+
+		delete(c.items, key)
+	}
+}
+
+func (c *cache) currentSize() uint {
+	return c.size
 }
